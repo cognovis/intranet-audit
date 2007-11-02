@@ -1,4 +1,7 @@
 
+
+
+
 ad_proc im_dashboard_timeline {
     { -name "Timeline" }
     { -values {} }
@@ -9,7 +12,6 @@ ad_proc im_dashboard_timeline {
     { -font_style "font-family:Verdana;font-weight:normal;line-height:10pt;" }
     { -bar_color "0080FF" }
     { -outer_distance 20 }
-    { -project_id 55090 }
 } {
     Returns a formatted HTML text to display a timeline of stacked bars
     based on Lutz Tautenhahn' "Javascript Diagram Builder", v3.3.
@@ -130,7 +132,7 @@ set lifecycle_sql "
 	from 
 		im_projects_audit
 	where 
-		project_id = 55090
+		project_id = 54316 
 	order by 
 		last_modified;
 "
