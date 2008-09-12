@@ -105,15 +105,6 @@ ad_proc im_dashboard_timeline {
     "
 }
 
-
-set hours_sql "
-	select	sum(hours) as hours,
-		day::date as day 
-	from 	im_hours 
-	group by day::date
-	order by day
-"
-
 set lifecycle_sql "
 	select
 		last_modified,
