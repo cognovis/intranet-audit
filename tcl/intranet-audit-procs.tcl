@@ -678,8 +678,11 @@ ad_proc -public im_audit_impl {
 } {
     if {$debug_p} { ns_log Notice "im_audit_impl: object_id=$object_id, user_id=$user_id, object_type=$object_type, status_id=$status_id, type_id=$type_id, action=$action, comment=$comment" }
 
-    if {0 == $user_id || "" == $user_id} { set user_id [ad_get_user_id] }
-    set peeraddr [ns_conn peeraddr]
+    set peeraddr "0.0.0.0"
+    if {0 == $user_id || "" == $user_id} { 
+	set user_id [ad_get_user_id] 
+	set peeraddr [ns_conn peeraddr]
+    }
     if {"" == $action} { set action "update" }
     set action [string tolower $action]
 
