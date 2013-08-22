@@ -130,7 +130,9 @@ ad_proc -public im_audit_component {
 	# Prettyfy the audit_diff.
 	# Go through values and dereference them.
 	set audit_diff_pretty ""
-	foreach field [split $audit_diff "\n"] {
+
+	foreach field [split [string map {\" ''} $audit_diff] "\n"] {
+
 	    set attribute_name [lindex $field 0]
 	    set attribute_value [lrange $field 1 end]
 
