@@ -793,8 +793,8 @@ ad_proc -public im_audit_sweeper { } {
     if {!$audit_exists_p} { return }
 
     # Make sure that only one thread is sweeping at a time
-    if {[nsv_incr intranet_core audit_sweep_semaphore] > 1} {
-        nsv_incr intranet_core audit_sweep_semaphore -1
+    if {[nsv_incr intranet_audit audit_sweep_semaphore] > 1} {
+        nsv_incr intranet_audit audit_sweep_semaphore -1
         ns_log Notice "im_core_audit_sweeper: Aborting. There is another process running"
         return "busy"
     }
