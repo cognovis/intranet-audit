@@ -348,6 +348,9 @@ ad_proc -public im_audit_attribute_ignore_helper {
     set ignore_hash(ticket_resolution_time_per_queue) 1
     set ignore_hash(ticket_resolution_time_dirty) 1
 
+    # The rule engine stores the last audit value...
+    set ignore_hash(rule_engine_old_value) 1
+
     return [array get ignore_hash]
 }
 
