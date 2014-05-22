@@ -219,7 +219,7 @@ ad_proc -public im_audit_format_rel_value {
 
     set other_object_name "undefined"
     if {"" != $other_object_id && [string is integer $other_object_id]} {
-        set other_object_name [util_memoize [list db_string object_name "select acs_object__name($other_object_id)"]]
+        set other_object_name [util_memoize [list acs_object_name $other_object_id]]
     }
     set result "$rel_type $arrow $other_object_name"
     set list ""
@@ -307,8 +307,8 @@ ad_proc -public im_audit_attribute_ignore {
 } {
     Returns a hash of attributes to be ignored in the audit package
 } {
-#    return [util_memoize [list im_audit_attribute_ignore_helper -object_type $object_type]]
-    return [im_audit_attribute_ignore_helper -object_type $object_type]
+    return [util_memoize [list im_audit_attribute_ignore_helper -object_type $object_type]]
+    # return [im_audit_attribute_ignore_helper -object_type $object_type]
 }
 
 
@@ -350,6 +350,7 @@ ad_proc -public im_audit_attribute_ignore_helper {
 
     # The rule engine stores the last audit value...
     set ignore_hash(rule_engine_old_value) 1
+    set ignore_hash(last_audit_id) 1
 
     return [array get ignore_hash]
 }
@@ -363,8 +364,8 @@ ad_proc -public im_audit_attribute_deref {
 } {
     Returns a hash of deref functions for important attributes
 } {
-#    return [util_memoize [list im_audit_attribute_deref_helper -object_type $object_type]]
-    return [im_audit_attribute_deref_helper -object_type $object_type]
+    return [util_memoize [list im_audit_attribute_deref_helper -object_type $object_type]]
+    # return [im_audit_attribute_deref_helper -object_type $object_type]
 }
 
 
@@ -550,6 +551,7 @@ ad_proc -public im_audit_object_value {
     to form a single string describing the object's values.
 } {
     ns_log Notice "im_audit_object_value: object_id=$object_id, object_type=$object_type"
+    im_security_alert_check_integer -location "im_audit_object_value: object_id" -value $object_id
 
     if {"" == $object_id} { return "" }
     im_security_alert_check_integer -location "im_audit_object_value" -value $object_id
@@ -593,7 +595,7 @@ ad_proc -public im_audit_object_value {
     for {set i 0} {$i < [llength $col_names]} {incr i} {
 	set var [lindex $col_names $i]
 	set val [lindex $col_values $i]
-	
+
 	# We need to quote \n and \t in $val because it is used to separate values
 	regsub -all {\n} $val {\n} val
 	regsub -all {\t} $val {\t} val
@@ -601,11 +603,12 @@ ad_proc -public im_audit_object_value {
 	# Skip a number of known internal variables
 	if {"tree_sortkey" == $var} { continue }
 	if {"max_child_sortkey" == $var} { continue }
+	if {"rule_engine_old_value" == $var} { continue }
 
 	# Add the line to the "value"
 	append value "$var	$val\n"
     }
-
+    
     # Add information about the object's relationships
     set audit_rels_p [parameter::get_from_package_key \
 		-package_key intranet-audit \
@@ -792,7 +795,7 @@ ad_proc -public im_audit_impl {
 ad_proc -public im_audit_sweeper { } {
     Make a copy of all "active" projects
 } {
-    set audit_exists_p [util_memoize "im_table_exists im_projects_audit"]
+    set audit_exists_p [util_memoize [list im_table_exists "im_projects_audit"]]
     if {!$audit_exists_p} { return }
 
     # Make sure that only one thread is sweeping at a time
