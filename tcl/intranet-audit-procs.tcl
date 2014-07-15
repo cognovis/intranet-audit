@@ -99,9 +99,30 @@ ad_proc -public im_audit_component {
 		im_category_from_id(audit_object_status_id) as audit_object_status,
 		im_initials_from_user_id(audit_user_id) as audit_user_initials,
 		im_name_from_user_id(audit_user_id) as audit_user_name
-	from	im_audits
-	where	audit_object_id = :object_id and
-		audit_date > :creation_date::timestamptz + '5 second'::interval -- ignore initial audit
+	from	(
+		select	audit_id,
+			audit_ip,
+			audit_date,
+			audit_user_id,
+			audit_object_id,
+			audit_object_status_id,
+			audit_action,
+			audit_diff
+		from	im_audits
+		where	audit_object_id = :object_id and
+			audit_date > :creation_date::timestamptz + '5 second'::interval -- ignore initial audit
+	UNION
+		select	0,
+			:creation_ip,
+			:creation_date,
+			:creation_user,
+			:object_id,
+			NULL,
+			'after_create',
+			''
+		from	dual
+
+		) audit_records
 	order by audit_id DESC
     "
     
@@ -168,8 +189,9 @@ ad_proc -public im_audit_component {
 	    append audit_diff_pretty "$pretty_name = $pretty_value"
 	}
 
-	# Skip the entire line if it's empty.
-	if {"" == $audit_diff_pretty} { continue }
+	# Skip the entire line if it's empty
+	# unless it is the creation line
+	if {"" == $audit_diff_pretty && 0 != $audit_id} { continue }
 
 	incr cnt
     }
