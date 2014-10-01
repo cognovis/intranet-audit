@@ -146,7 +146,7 @@ ad_proc -public im_audit_component {
 	    default		{ set audit_action_abbrev "cog" }
 	}
 	set audit_action_msg [lang::message::lookup "" intranet-audit.Action_${audit_action}_help $audit_action]
-	set audit_action_gif [im_gif $audit_action_abbrev $audit_action_msg]
+	set audit_action_gif [im_gif -translate_p 0 $audit_action_abbrev $audit_action_msg]
 
 	# Prettyfy the audit_diff.
 	# Go through values and dereference them.
